@@ -197,7 +197,6 @@ HTML = """
       {% endif %}
     </div>
 
-    <h2 style="color:white; text-align:center; margin:20px 0 10px">📚 Texnikum haqida</h2>
     {% if texnikum_rasmlari %}
     <div class="karusel">
       <div class="karusel-track">
