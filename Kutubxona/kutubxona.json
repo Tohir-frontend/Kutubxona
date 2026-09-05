@@ -1,46 +1,197 @@
 {
   "Umumta'lim fanlar": [
-    {"nomi": "O'zbek tili", "muallif": "N. Mahmudov", "yili": "2020"},
-    {"nomi": "Adabiyot", "muallif": "S. Ahmedov", "yili": "2019"},
-    {"nomi": "Matematika", "muallif": "A. Qodiriy", "yili": "2018"},
-    {"nomi": "Ingliz tili", "muallif": "J. Smith", "yili": "2021"},
-    {"nomi": "Fizika", "muallif": "I. Karimov", "yili": "2020"},
-    {"nomi": "Kimyo", "muallif": "D. Nazarov", "yili": "2019"},
-    {"nomi": "Biologiya", "muallif": "M. Solih", "yili": "2020"},
-    {"nomi": "Tarix", "muallif": "H. Doniyorov", "yili": "2018"},
-    {"nomi": "Ona tili", "muallif": "O. Yo'ldoshev", "yili": "2019"},
-    {"nomi": "Geografiya", "muallif": "T. Ergashev", "yili": "2020"}
+    {
+      "nomi": "O'zbek tili",
+      "muallif": "N. Mahmudov",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Adabiyot",
+      "muallif": "S. Ahmedov",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Matematika",
+      "muallif": "A. Qodiriy",
+      "yili": "2018"
+    },
+    {
+      "nomi": "Ingliz tili",
+      "muallif": "J. Smith",
+      "yili": "2021"
+    },
+    {
+      "nomi": "Fizika",
+      "muallif": "I. Karimov",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Kimyo",
+      "muallif": "D. Nazarov",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Biologiya",
+      "muallif": "M. Solih",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Tarix",
+      "muallif": "H. Doniyorov",
+      "yili": "2018"
+    },
+    {
+      "nomi": "Ona tili",
+      "muallif": "O. Yo'ldoshev",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Geografiya",
+      "muallif": "T. Ergashev",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Fizika",
+      "muallif": "N.Sh.Turdiyev",
+      "yili": "2017",
+      "muqova": "photo_2026-09-05_21-09-06.jpg",
+      "fayl": "fizika_10_uzb.pdf"
+    }
   ],
   "Umumkasbiy fanlar": [
-    {"nomi": "Pedagogika asoslari", "muallif": "X. To'rayev", "yili": "2020"},
-    {"nomi": "Psixologiya", "muallif": "G. Yusufova", "yili": "2019"},
-    {"nomi": "Ta'lim texnologiyalari", "muallif": "M. Xolmatov", "yili": "2021"},
-    {"nomi": "Metodika", "muallif": "A. Abdullayev", "yili": "2018"},
-    {"nomi": "Axborot texnologiyalari", "muallif": "B. Tursunov", "yili": "2020"},
-    {"nomi": "Didaktika", "muallif": "N. Saidov", "yili": "2019"},
-    {"nomi": "Tarbiyaviy ishlar", "muallif": "S. Hasanov", "yili": "2020"},
-    {"nomi": "Kasbiy kompetentsiya", "muallif": "D. Yo'ldosheva", "yili": "2021"}
+    {
+      "nomi": "Pedagogika asoslari",
+      "muallif": "X. To'rayev",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Psixologiya",
+      "muallif": "G. Yusufova",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Ta'lim texnologiyalari",
+      "muallif": "M. Xolmatov",
+      "yili": "2021"
+    },
+    {
+      "nomi": "Metodika",
+      "muallif": "A. Abdullayev",
+      "yili": "2018"
+    },
+    {
+      "nomi": "Axborot texnologiyalari",
+      "muallif": "B. Tursunov",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Didaktika",
+      "muallif": "N. Saidov",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Tarbiyaviy ishlar",
+      "muallif": "S. Hasanov",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Kasbiy kompetentsiya",
+      "muallif": "D. Yo'ldosheva",
+      "yili": "2021"
+    }
   ],
   "Maxsus fanlar": [
-    {"nomi": "Boshlang'ich ta'lim metodikasi", "muallif": "M. Rajabov", "yili": "2020"},
-    {"nomi": "Matematika o'qitish metodikasi", "muallif": "A. Qodirov", "yili": "2019"},
-    {"nomi": "Ona tili o'qitish metodikasi", "muallif": "Z. Mirzayev", "yili": "2020"},
-    {"nomi": "Informatika asoslari", "muallif": "K. Yusupov", "yili": "2021"},
-    {"nomi": "Bolalar adabiyoti", "muallif": "R. Ortiqov", "yili": "2019"},
-    {"nomi": "Tabiiy fanlar", "muallif": "L. Hamidova", "yili": "2020"},
-    {"nomi": "Sinif rahbarligi", "muallif": "B. Sultonov", "yili": "2018"},
-    {"nomi": "Pedagogik mahorat", "muallif": "T. Ahmedova", "yili": "2021"}
+    {
+      "nomi": "Boshlang'ich ta'lim metodikasi",
+      "muallif": "M. Rajabov",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Matematika o'qitish metodikasi",
+      "muallif": "A. Qodirov",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Ona tili o'qitish metodikasi",
+      "muallif": "Z. Mirzayev",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Informatika asoslari",
+      "muallif": "K. Yusupov",
+      "yili": "2021"
+    },
+    {
+      "nomi": "Bolalar adabiyoti",
+      "muallif": "R. Ortiqov",
+      "yili": "2019"
+    },
+    {
+      "nomi": "Tabiiy fanlar",
+      "muallif": "L. Hamidova",
+      "yili": "2020"
+    },
+    {
+      "nomi": "Sinif rahbarligi",
+      "muallif": "B. Sultonov",
+      "yili": "2018"
+    },
+    {
+      "nomi": "Pedagogik mahorat",
+      "muallif": "T. Ahmedova",
+      "yili": "2021"
+    }
   ],
   "Badiiy adabiyotlar": [
-    {"nomi": "O'tkan kunlar", "muallif": "Abdulla Qodiriy", "yili": "1926"},
-    {"nomi": "Mehrobdan chayon", "muallif": "Abdulla Qodiriy", "yili": "1929"},
-    {"nomi": "Sarob", "muallif": "Abdulla Qahhor", "yili": "1938"},
-    {"nomi": "Shum bola", "muallif": "G'afur G'ulom", "yili": "1936"},
-    {"nomi": "Yulduzli tunlar", "muallif": "Pirimqul Qodirov", "yili": "1978"},
-    {"nomi": "Quyoshni qaytaraman", "muallif": "Said Ahmad", "yili": "1967"},
-    {"nomi": "Boburnoma", "muallif": "Zahiriddin Bobur", "yili": "1502"},
-    {"nomi": "Oq kema", "muallif": "Chingiz Aytmatov", "yili": "1970"},
-    {"nomi": "Kecha va kunduz", "muallif": "Cho'lpon", "yili": "1936"},
-    {"nomi": "Yorqinoy", "muallif": "Mirtemir", "yili": "1948"}
+    {
+      "nomi": "O'tkan kunlar",
+      "muallif": "Abdulla Qodiriy",
+      "yili": "1926"
+    },
+    {
+      "nomi": "Mehrobdan chayon",
+      "muallif": "Abdulla Qodiriy",
+      "yili": "1929"
+    },
+    {
+      "nomi": "Sarob",
+      "muallif": "Abdulla Qahhor",
+      "yili": "1938"
+    },
+    {
+      "nomi": "Shum bola",
+      "muallif": "G'afur G'ulom",
+      "yili": "1936"
+    },
+    {
+      "nomi": "Yulduzli tunlar",
+      "muallif": "Pirimqul Qodirov",
+      "yili": "1978"
+    },
+    {
+      "nomi": "Quyoshni qaytaraman",
+      "muallif": "Said Ahmad",
+      "yili": "1967"
+    },
+    {
+      "nomi": "Boburnoma",
+      "muallif": "Zahiriddin Bobur",
+      "yili": "1502"
+    },
+    {
+      "nomi": "Oq kema",
+      "muallif": "Chingiz Aytmatov",
+      "yili": "1970"
+    },
+    {
+      "nomi": "Kecha va kunduz",
+      "muallif": "Cho'lpon",
+      "yili": "1936"
+    },
+    {
+      "nomi": "Yorqinoy",
+      "muallif": "Mirtemir",
+      "yili": "1948"
+    }
   ]
 }
