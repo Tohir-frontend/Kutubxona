@@ -59,7 +59,12 @@ def texnikum_rasmlari():
     if not os.path.exists(papka):
         return []
     rasm_turlari = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
-    return [f for f in os.listdir(papka) if os.path.splitext(f)[1].lower() in rasm_turlari]
+    tartib = {"texnikum 1": 0, "kitob": 1, "texnikum 2": 2}
+    rasmlar = [f for f in os.listdir(papka) if os.path.splitext(f)[1].lower() in rasm_turlari]
+    return sorted(
+        rasmlar,
+        key=lambda fayl: tartib.get(os.path.splitext(fayl)[0].lower(), len(tartib)),
+    )
 
 
 def kod_yaratish():
