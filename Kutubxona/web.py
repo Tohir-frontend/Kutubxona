@@ -293,7 +293,7 @@ HTML = """
     <div class="reader">
       <h2>{{ kitob.nomi }} — {{ kitob.muallif }}</h2>
 
-      <div id="pdf-controls" style="background:#f4f6fa; padding:12px; border-radius:8px; margin:10px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center">
+      <div id="pdf-controls" style="background:#1a3a6e; padding:12px; border-radius:8px; margin:10px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; position:fixed; bottom:0; left:0; right:0; z-index:1000; box-shadow:0 -4px 12px rgba(0,0,0,0.2); color:white">
         <button onclick="prevPage()" class="pdf-btn">◄ Oldingi</button>
         <span style="display:flex; align-items:center; gap:5px">
           <input type="number" id="page-num" min="1" value="1" style="width:60px; padding:6px; text-align:center; border:1px solid #ddd; border-radius:4px">
@@ -310,7 +310,7 @@ HTML = """
         <a class="pdf-btn" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download style="background:#28a745; text-decoration:none">⬇ Yuklab</a>
       </div>
 
-      <div style="position:relative; background:#555; padding:10px; border-radius:8px">
+      <div style="position:relative; background:#555; padding:10px; border-radius:8px; margin-bottom:80px">
         <div id="pdf-viewer" style="display:flex; justify-content:center; min-height:600px">
           <canvas id="pdf-canvas" style="background:white; box-shadow:0 4px 12px rgba(0,0,0,0.3); max-width:100%"></canvas>
         </div>
@@ -429,8 +429,9 @@ HTML = """
     });
     </script>
     <style>
-    .pdf-btn { background:#1a3a6e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px }
-    .pdf-btn:hover { background:#2c5aa0 }
+    .pdf-btn { background:white; color:#1a3a6e; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:bold }
+    .pdf-btn:hover { background:#f0f0f0 }
+    #pdf-controls input[type="number"], #pdf-controls input[type="text"] { background:white; color:#333; border:1px solid #ccc }
     </style>
 
   {% elif sahifa == 'kirish' %}
