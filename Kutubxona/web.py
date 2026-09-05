@@ -127,7 +127,7 @@ HTML = """
 <style>
   * { box-sizing: border-box; }
   html { scrollbar-width: auto; scrollbar-color: #8da8c7 #dce5ef; }
-  ::-webkit-scrollbar { width: 18px; height: 18px; }
+  ::-webkit-scrollbar { width: 32px; height: 32px; }
   ::-webkit-scrollbar-track { background: #dce5ef; border-radius: 10px; }
   ::-webkit-scrollbar-thumb { background: #8da8c7; border: 4px solid #dce5ef; border-radius: 10px; min-height: 48px; }
   ::-webkit-scrollbar-thumb:hover { background: #1a3a6e; }
