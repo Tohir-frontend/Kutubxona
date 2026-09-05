@@ -13,6 +13,13 @@ Python'da yozilgan oddiy konsol kutubxona tizimi.
 python Kutubxona/main.py
 ```
 
+## Web versiyasini ishga tushirish
+```powershell
+python Kutubxona/web.py
+```
+
+Keyin brauzerda `http://127.0.0.1:5000/` manzilini oching. Brauzerda `ERR_CONNECTION_REFUSED` chiqsa, Flask serveri hali ishga tushirilmagan bo'ladi.
+
 ## Imkoniyatlar
 - Bo'limlarni ko'rish
 - Yangi kitob qo'shish
