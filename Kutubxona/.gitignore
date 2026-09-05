@@ -1,3 +1,8 @@
 __pycache__/
 *.pyc
 .DS_Store
+.env
+users.json
+static/files/
+static/covers/
+tasdiqlash_kodlari.txt
