@@ -96,13 +96,13 @@ def joriy_foydalanuvchi():
     return session.get("foydalanuvchi")
 
 
-ADMIN_LOGIN = "Tohir"
+ADMIN_LOGIN = "erjanovtohir1993@gmail.com"
 ADMIN_PAROL = "Tohir_1993"
 
 
 def admin_mi():
     f = joriy_foydalanuvchi()
-    return f and f.get("email") == "admin"
+    return f and f.get("email") == "erjanovtohir1993@gmail.com"
 
 
 HTML = """
@@ -209,7 +209,7 @@ HTML = """
                 <a class="btn btn-ochish" href="{{ url_for('ochish', bolim=bolim, idx=loop.index0) }}">O'qish</a>
                 <a class="btn btn-yuklash" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download>Yuklab</a>
               {% endif %}
-              {% if foydalanuvchi and (kitob.tomonidan == foydalanuvchi.email or foydalanuvchi.rol == 'admin') %}
+              {% if foydalanuvchi and (kitob.tomonidan == foydalanuvchi.email or foydalanuvchi.email == 'erjanovtohir1993@gmail.com') %}
                 <a class="btn btn-tahrirlash" href="{{ url_for('tahrirlash', bolim=bolim, idx=loop.index0) }}">Tahrir</a>
                 <a class="btn btn-ochirish" href="{{ url_for('ochirish', bolim=bolim, idx=loop.index0) }}" onclick="return confirm('O\\'chirilsinmi?')">O'chirish</a>
               {% endif %}
@@ -418,7 +418,7 @@ def kirish():
         parol = request.form["parol"]
 
         if email == ADMIN_LOGIN and parol == ADMIN_PAROL:
-            session["foydalanuvchi"] = {"ism": "Admin (Tohir)", "email": "admin", "rol": "admin"}
+            session["foydalanuvchi"] = {"ism": "Admin (Tohir)", "email": "erjanovtohir1993@gmail.com", "rol": "admin"}
             flash("Xush kelibsiz, Admin!", "muvaffaqiyat")
             return redirect(url_for("bosh_sahifa"))
 
