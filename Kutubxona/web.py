@@ -96,6 +96,15 @@ def joriy_foydalanuvchi():
     return session.get("foydalanuvchi")
 
 
+ADMIN_LOGIN = "Tohir"
+ADMIN_PAROL = "Tohir_1993"
+
+
+def admin_mi():
+    f = joriy_foydalanuvchi()
+    return f and f.get("email") == "admin"
+
+
 HTML = """
 <!DOCTYPE html>
 <html lang="uz">
@@ -200,7 +209,7 @@ HTML = """
                 <a class="btn btn-ochish" href="{{ url_for('ochish', bolim=bolim, idx=loop.index0) }}">O'qish</a>
                 <a class="btn btn-yuklash" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download>Yuklab</a>
               {% endif %}
-              {% if foydalanuvchi and kitob.tomonidan == foydalanuvchi.email %}
+              {% if foydalanuvchi and (kitob.tomonidan == foydalanuvchi.email or foydalanuvchi.rol == 'admin') %}
                 <a class="btn btn-tahrirlash" href="{{ url_for('tahrirlash', bolim=bolim, idx=loop.index0) }}">Tahrir</a>
                 <a class="btn btn-ochirish" href="{{ url_for('ochirish', bolim=bolim, idx=loop.index0) }}" onclick="return confirm('O\\'chirilsinmi?')">O'chirish</a>
               {% endif %}
@@ -405,12 +414,19 @@ def tasdiqlash():
 @app.route("/kirish", methods=["GET", "POST"])
 def kirish():
     if request.method == "POST":
-        f = foydalanuvchilar_yuklash()
-        email = request.form["email"].lower().strip()
+        email = request.form["email"].strip()
         parol = request.form["parol"]
-        user = f["faollar"].get(email)
+
+        if email == ADMIN_LOGIN and parol == ADMIN_PAROL:
+            session["foydalanuvchi"] = {"ism": "Admin (Tohir)", "email": "admin", "rol": "admin"}
+            flash("Xush kelibsiz, Admin!", "muvaffaqiyat")
+            return redirect(url_for("bosh_sahifa"))
+
+        email_l = email.lower()
+        f = foydalanuvchilar_yuklash()
+        user = f["faollar"].get(email_l)
         if user and check_password_hash(user["parol"], parol):
-            session["foydalanuvchi"] = {"ism": user["ism"], "email": email}
+            session["foydalanuvchi"] = {"ism": user["ism"], "email": email_l, "rol": "user"}
             flash(f"Xush kelibsiz, {user['ism']}!", "muvaffaqiyat")
             return redirect(url_for("bosh_sahifa"))
         flash("Email yoki parol noto'g'ri", "xato")
@@ -463,7 +479,7 @@ def tahrirlash(bolim, idx):
         return redirect(url_for("kirish"))
     m = kitoblar_yuklash()
     kitob = m[bolim][idx]
-    if kitob.get("tomonidan") != user["email"]:
+    if not admin_mi() and kitob.get("tomonidan") != user["email"]:
         flash("Faqat o'zingiz yuklagan kitobni tahrirlashingiz mumkin", "xato")
         return redirect(url_for("bosh_sahifa"))
     if request.method == "POST":
@@ -495,7 +511,7 @@ def ochirish(bolim, idx):
         return redirect(url_for("kirish"))
     m = kitoblar_yuklash()
     kitob = m[bolim][idx]
-    if kitob.get("tomonidan") != user["email"]:
+    if not admin_mi() and kitob.get("tomonidan") != user["email"]:
         flash("Faqat o'zingiz yuklagan kitobni o'chirishingiz mumkin", "xato")
         return redirect(url_for("bosh_sahifa"))
     m[bolim].pop(idx)
