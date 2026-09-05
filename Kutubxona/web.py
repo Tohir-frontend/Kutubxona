@@ -133,8 +133,8 @@ HTML = """
   .kitoblar { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
   .karta { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }
   .karta:hover { transform: translateY(-5px); }
-  .muqova { width: 100%; height: 280px; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold; }
-  .muqova img { width: 100%; height: 280px; object-fit: cover; }
+  .muqova { width: 100%; height: 280px; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold; overflow: hidden }
+  .muqova img { width: 100%; height: 100%; object-fit: contain }
   .karta-tana { padding: 15px; }
   .karta-tana h3 { margin: 0 0 8px; color: #1a3a6e; font-size: 16px; }
   .karta-tana p { margin: 4px 0; color: #666; font-size: 14px; }
