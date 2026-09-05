@@ -315,6 +315,11 @@ HTML = """
       <p style="text-align:center">{{ email }} manziliga yuborilgan 6 xonali kodni kiriting</p>
       <input type="text" name="kod" placeholder="123456" maxlength="6" required style="text-align:center; font-size:20px; letter-spacing:5px">
       <button type="submit">Tasdiqlash</button>
+      {% if joriy_kod %}
+      <div style="background:#fff3cd; padding:10px; border-radius:6px; margin-top:15px; text-align:center; font-size:14px">
+        <b>Test rejim:</b> Sizning kodingiz: <span style="font-size:18px; letter-spacing:3px; color:#1a3a6e">{{ joriy_kod }}</span>
+      </div>
+      {% endif %}
     </form>
   {% endif %}
 </div>
@@ -347,19 +352,28 @@ def royxat():
     if request.method == "POST":
         f = foydalanuvchilar_yuklash()
         email = request.form["email"].lower().strip()
-        if email in f["faollar"] or email in f["tasdiqlanmaganlar"]:
-            flash("Bu email allaqachon ro'yxatdan o'tgan", "xato")
-            return redirect(url_for("royxat"))
+        ism = request.form["ism"]
+        familiya = request.form["familiya"]
+
+        eski_bor = email in f["faollar"] or email in f["tasdiqlanmaganlar"]
+        if eski_bor:
+            f["faollar"].pop(email, None)
+            f["tasdiqlanmaganlar"].pop(email, None)
+
         kod = kod_yaratish()
         f["tasdiqlanmaganlar"][email] = {
-            "ism": request.form["ism"],
-            "familiya": request.form["familiya"],
+            "ism": ism,
+            "familiya": familiya,
             "parol": generate_password_hash(request.form["parol"]),
             "kod": kod,
         }
         foydalanuvchilar_saqlash(f)
-        email_yuborish(email, kod)
+        yuborildi = email_yuborish(email, kod)
         session["tasdiqlash_email"] = email
+        if eski_bor:
+            flash("Eski akkaunt o'chirildi. Yangi tasdiqlash kodi yuborildi.", "muvaffaqiyat")
+        elif not yuborildi:
+            flash("Email yuborilmadi — kod konsolda ko'rinadi.", "xato")
         return redirect(url_for("tasdiqlash"))
     return render_template_string(HTML, sahifa="royxat", foydalanuvchi=joriy_foydalanuvchi())
 
@@ -369,8 +383,9 @@ def tasdiqlash():
     email = session.get("tasdiqlash_email")
     if not email:
         return redirect(url_for("royxat"))
+    f = foydalanuvchilar_yuklash()
+    joriy_kod = f["tasdiqlanmaganlar"].get(email, {}).get("kod", "")
     if request.method == "POST":
-        f = foydalanuvchilar_yuklash()
         if email in f["tasdiqlanmaganlar"]:
             kiritilgan = request.form["kod"].strip()
             if f["tasdiqlanmaganlar"][email]["kod"] == kiritilgan:
@@ -383,7 +398,8 @@ def tasdiqlash():
                 return redirect(url_for("bosh_sahifa"))
             else:
                 flash("Kod noto'g'ri", "xato")
-    return render_template_string(HTML, sahifa="tasdiqlash", email=email, foydalanuvchi=joriy_foydalanuvchi())
+    return render_template_string(HTML, sahifa="tasdiqlash", email=email,
+                                   joriy_kod=joriy_kod, foydalanuvchi=joriy_foydalanuvchi())
 
 
 @app.route("/kirish", methods=["GET", "POST"])
