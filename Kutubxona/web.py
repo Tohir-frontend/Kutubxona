@@ -126,6 +126,11 @@ HTML = """
 <title>Xorazm Pedagogika Texnikumi Kutubxonasi</title>
 <style>
   * { box-sizing: border-box; }
+  html { scrollbar-width: auto; scrollbar-color: #8da8c7 #dce5ef; }
+  ::-webkit-scrollbar { width: 18px; height: 18px; }
+  ::-webkit-scrollbar-track { background: #dce5ef; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb { background: #8da8c7; border: 4px solid #dce5ef; border-radius: 10px; min-height: 48px; }
+  ::-webkit-scrollbar-thumb:hover { background: #1a3a6e; }
   body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); margin: 0; min-height: 100vh; }
   .header { background: rgba(0,0,0,0.3); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { margin: 0; font-size: 22px; }
