@@ -292,11 +292,146 @@ HTML = """
     <div class="nav"><a href="{{ url_for('bosh_sahifa') }}">Bosh sahifa</a></div>
     <div class="reader">
       <h2>{{ kitob.nomi }} — {{ kitob.muallif }}</h2>
-      <iframe src="{{ url_for('static', filename='files/' + kitob.fayl) }}"></iframe>
-      <p style="margin-top:15px">
-        <a class="btn btn-yuklash" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download style="display:inline-block; width:auto; padding:12px 25px">Yuklab olish</a>
-      </p>
+
+      <div id="pdf-controls" style="background:#f4f6fa; padding:12px; border-radius:8px; margin:10px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center">
+        <button onclick="prevPage()" class="pdf-btn">◄ Oldingi</button>
+        <span style="display:flex; align-items:center; gap:5px">
+          <input type="number" id="page-num" min="1" value="1" style="width:60px; padding:6px; text-align:center; border:1px solid #ddd; border-radius:4px">
+          <span>/ <span id="page-count">0</span></span>
+        </span>
+        <button onclick="nextPage()" class="pdf-btn">Keyingi ►</button>
+        <button onclick="zoomOut()" class="pdf-btn">−</button>
+        <input type="range" id="zoom-slider" min="50" max="200" value="100" step="10" style="width:120px" oninput="setZoom(this.value)">
+        <button onclick="zoomIn()" class="pdf-btn">+</button>
+        <span id="zoom-val" style="min-width:45px">100%</span>
+        <input type="text" id="search-text" placeholder="Matn izlash..." style="padding:6px; border:1px solid #ddd; border-radius:4px; width:160px">
+        <button onclick="searchPDF()" class="pdf-btn">🔍 Izlash</button>
+        <span id="search-status" style="font-size:12px; color:#666"></span>
+        <a class="pdf-btn" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download style="background:#28a745; text-decoration:none">⬇ Yuklab</a>
+      </div>
+
+      <div style="position:relative; background:#555; padding:10px; border-radius:8px">
+        <div id="pdf-viewer" style="display:flex; justify-content:center; min-height:600px">
+          <canvas id="pdf-canvas" style="background:white; box-shadow:0 4px 12px rgba(0,0,0,0.3); max-width:100%"></canvas>
+        </div>
+      </div>
+
+      <div id="pdf-loading" style="text-align:center; padding:20px; color:#1a3a6e">Yuklanmoqda...</div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let pdfDoc = null, pageNum = 1, pageRendering = false, pageNumPending = null;
+    let scale = 1.0, searchMatches = [], currentMatch = 0;
+
+    const url = "{{ url_for('static', filename='files/' + kitob.fayl) }}";
+
+    function renderPage(num) {
+      pageRendering = true;
+      pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({scale: scale});
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        page.render({canvasContext: ctx, viewport: viewport}).promise.then(() => {
+          pageRendering = false;
+          if (pageNumPending !== null) {
+            renderPage(pageNumPending);
+            pageNumPending = null;
+          }
+        });
+      });
+      document.getElementById('page-num').value = num;
+    }
+
+    function queueRenderPage(num) {
+      if (pageRendering) pageNumPending = num;
+      else renderPage(num);
+    }
+
+    function prevPage() {
+      if (pageNum <= 1) return;
+      pageNum--;
+      queueRenderPage(pageNum);
+    }
+
+    function nextPage() {
+      if (pageNum >= pdfDoc.numPages) return;
+      pageNum++;
+      queueRenderPage(pageNum);
+    }
+
+    document.getElementById('page-num').addEventListener('change', function() {
+      let n = parseInt(this.value);
+      if (n >= 1 && n <= pdfDoc.numPages) { pageNum = n; queueRenderPage(pageNum); }
+    });
+
+    function setZoom(val) {
+      scale = val / 100;
+      document.getElementById('zoom-val').textContent = val + '%';
+      queueRenderPage(pageNum);
+    }
+
+    function zoomIn() {
+      let v = Math.min(200, parseInt(document.getElementById('zoom-slider').value) + 10);
+      document.getElementById('zoom-slider').value = v;
+      setZoom(v);
+    }
+
+    function zoomOut() {
+      let v = Math.max(50, parseInt(document.getElementById('zoom-slider').value) - 10);
+      document.getElementById('zoom-slider').value = v;
+      setZoom(v);
+    }
+
+    function searchPDF() {
+      const q = document.getElementById('search-text').value.trim();
+      if (!q) return;
+      document.getElementById('search-status').textContent = 'Izlanmoqda...';
+      searchMatches = [];
+      let promises = [];
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        promises.push(pdfDoc.getPage(i).then(p => p.getTextContent().then(tc => {
+          const text = tc.items.map(it => it.str).join(' ').toLowerCase();
+          if (text.includes(q.toLowerCase())) searchMatches.push(i);
+        })));
+      }
+      Promise.all(promises).then(() => {
+        if (searchMatches.length === 0) {
+          document.getElementById('search-status').textContent = 'Topilmadi';
+        } else {
+          currentMatch = 0;
+          pageNum = searchMatches[0];
+          queueRenderPage(pageNum);
+          document.getElementById('search-status').textContent = '1/' + searchMatches.length + ' (sahifa ' + searchMatches[0] + ')';
+          document.getElementById('search-text').onkeydown = function(e) {
+            if (e.key === 'Enter' && searchMatches.length) {
+              currentMatch = (currentMatch + 1) % searchMatches.length;
+              pageNum = searchMatches[currentMatch];
+              queueRenderPage(pageNum);
+              document.getElementById('search-status').textContent = (currentMatch+1) + '/' + searchMatches.length + ' (sahifa ' + searchMatches[currentMatch] + ')';
+            }
+          };
+        }
+      });
+    }
+
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      pdfDoc = pdf;
+      document.getElementById('page-count').textContent = pdf.numPages;
+      document.getElementById('pdf-loading').style.display = 'none';
+      renderPage(1);
+    }).catch(err => {
+      document.getElementById('pdf-loading').textContent = 'Xato: ' + err.message;
+    });
+    </script>
+    <style>
+    .pdf-btn { background:#1a3a6e; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px }
+    .pdf-btn:hover { background:#2c5aa0 }
+    </style>
 
   {% elif sahifa == 'kirish' %}
     <form class="auth-form" method="post">
