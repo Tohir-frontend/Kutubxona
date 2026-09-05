@@ -54,6 +54,14 @@ def kitoblar_saqlash(m):
         json.dump(m, f, ensure_ascii=False, indent=2)
 
 
+def texnikum_rasmlari():
+    papka = os.path.join(os.path.dirname(__file__), "static", "texnikum")
+    if not os.path.exists(papka):
+        return []
+    rasm_turlari = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+    return [f for f in os.listdir(papka) if os.path.splitext(f)[1].lower() in rasm_turlari]
+
+
 def kod_yaratish():
     return "".join(random.choices(string.digits, k=6))
 
@@ -152,6 +160,11 @@ HTML = """
   .qidiruv-form input { flex: 1; }
   .reader { background: #fff; padding: 20px; border-radius: 10px; text-align: center; }
   .reader iframe { width: 100%; height: 600px; border: none; border-radius: 8px; }
+
+  .karusel { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .karusel-track { display: flex; transition: transform 2s ease-in-out; }
+  .karusel-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; background: #000 }
+  .karusel-slide img { width: 100%; height: 400px; object-fit: contain; display: block }
 </style>
 </head>
 <body>
@@ -183,6 +196,23 @@ HTML = """
         <a href="{{ url_for('qoshish') }}">Kitob qo'shish</a>
       {% endif %}
     </div>
+
+    <h2 style="color:white; text-align:center; margin:20px 0 10px">📚 Texnikum haqida</h2>
+    {% if texnikum_rasmlari %}
+    <div class="karusel">
+      <div class="karusel-track">
+        {% for rasm in texnikum_rasmlari %}
+        <div class="karusel-slide">
+          <img src="{{ url_for('static', filename='texnikum/' + rasm) }}" alt="Texnikum">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div style="background:rgba(255,255,255,0.1); color:white; padding:30px; text-align:center; border-radius:10px; margin-bottom:20px">
+      Texnikum rasmlari yuklanmagan. <code>Kutubxona/static/texnikum/</code> papkasiga rasmlarni qo'ying.
+    </div>
+    {% endif %}
 
     {% for bolim in bolimlar %}
       <div class="bolim-sarlavha">
@@ -468,6 +498,21 @@ HTML = """
     </form>
   {% endif %}
 </div>
+
+{% if sahifa == 'bosh' and texnikum_rasmlari %}
+<script>
+  const track = document.querySelector('.karusel-track');
+  const slides = document.querySelectorAll('.karusel-slide');
+  if (track && slides.length > 0) {
+    let idx = 0;
+    function rotate() {
+      idx = (idx + 1) % slides.length;
+      track.style.transform = `translateX(-${idx * 100}%)`;
+    }
+    setInterval(rotate, 5000);
+  }
+</script>
+{% endif %}
 </body>
 </html>
 """
@@ -476,7 +521,9 @@ HTML = """
 @app.route("/")
 def bosh_sahifa():
     return render_template_string(HTML, sahifa="bosh", bolimlar=BO_LIMLAR,
-                                   malumot=kitoblar_yuklash(), foydalanuvchi=joriy_foydalanuvchi())
+                                   malumot=kitoblar_yuklash(),
+                                   foydalanuvchi=joriy_foydalanuvchi(),
+                                   texnikum_rasmlari=texnikum_rasmlari())
 
 
 @app.route("/qidirish")
