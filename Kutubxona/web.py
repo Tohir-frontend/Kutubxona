@@ -127,7 +127,7 @@ HTML = """
 <style>
   * { box-sizing: border-box; }
   html { scrollbar-width: auto; scrollbar-color: #8da8c7 #dce5ef; }
-  ::-webkit-scrollbar { width: 32px; height: 32px; }
+  ::-webkit-scrollbar { width: 96px; height: 32px; }
   ::-webkit-scrollbar-track { background: #dce5ef; border-radius: 10px; }
   ::-webkit-scrollbar-thumb { background: #8da8c7; border: 4px solid #dce5ef; border-radius: 10px; min-height: 48px; }
   ::-webkit-scrollbar-thumb:hover { background: #1a3a6e; }
@@ -468,7 +468,13 @@ HTML = """
     });
     </script>
     <style>
-    .pdf-btn { background:white; color:#1a3a6e; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:bold }
+    #pdf-controls { padding:clamp(4px, 0.6vw, 8px) !important; gap:clamp(4px, 0.7vw, 10px) !important; font-size:clamp(10px, 1vw, 13px); }
+    #pdf-controls .pdf-btn { background:white; color:#1a3a6e; border:none; padding:clamp(4px, 0.5vw, 6px) clamp(7px, 0.9vw, 12px); border-radius:4px; cursor:pointer; font-size:clamp(10px, 1vw, 13px); font-weight:bold }
+    #pdf-controls input { font-size:clamp(10px, 1vw, 13px); padding:clamp(4px, 0.5vw, 6px) !important; }
+    #pdf-controls input[type="number"] { width:clamp(42px, 5vw, 60px) !important; }
+    #pdf-controls input[type="range"] { width:clamp(70px, 10vw, 120px) !important; }
+    #pdf-controls input[type="text"] { width:clamp(100px, 13vw, 160px) !important; }
+    #pdf-controls #zoom-val { min-width:clamp(35px, 3.5vw, 45px) !important; }
     .pdf-btn:hover { background:#f0f0f0 }
     #pdf-controls input[type="number"], #pdf-controls input[type="text"] { background:white; color:#333; border:1px solid #ccc }
     </style>
