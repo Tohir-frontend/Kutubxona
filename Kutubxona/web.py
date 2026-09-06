@@ -328,7 +328,9 @@ HTML = """
     </form>
 
   {% elif sahifa == 'ochish' %}
-    <div class="nav"><a href="{{ url_for('bosh_sahifa') }}">Bosh sahifa</a></div>
+    <div class="nav">
+      <button type="button" class="pdf-btn" onclick="qaytish()">← Oldingi joyga qaytish</button>
+    </div>
     <div class="reader">
       <h2>{{ kitob.nomi }} — {{ kitob.muallif }}</h2>
 
@@ -366,6 +368,11 @@ HTML = """
     let scale = 1.0, searchMatches = [], currentMatch = 0;
 
     const url = "{{ url_for('static', filename='files/' + kitob.fayl) }}";
+
+    function qaytish() {
+      if (window.history.length > 1) window.history.back();
+      else window.location.href = "{{ url_for('bosh_sahifa') }}";
+    }
 
     function renderPage(num) {
       pageRendering = true;
