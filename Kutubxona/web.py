@@ -192,6 +192,28 @@ def kitobni_topish(m, bolim, idx):
     return m[bolim][idx]
 
 
+def fayllarni_tozalash(ochirilgan_kitob, qolgan_m):
+    """O'chirilgan kitobning fayl/muqovasini, agar boshqa hech qaysi kitob
+    ishlatmasa, diskdan ham o'chiradi (bo'sh joyni tejash uchun)."""
+    ishlatilayotgan = set()
+    for kitoblar in qolgan_m.values():
+        for k in kitoblar:
+            if k.get("fayl"):
+                ishlatilayotgan.add(k["fayl"])
+            if k.get("muqova"):
+                ishlatilayotgan.add(k["muqova"])
+    fayl = ochirilgan_kitob.get("fayl")
+    if fayl and fayl not in ishlatilayotgan:
+        yol = os.path.join(app.config["UPLOAD_FOLDER"], fayl)
+        if os.path.exists(yol):
+            os.remove(yol)
+    muqova = ochirilgan_kitob.get("muqova")
+    if muqova and muqova not in ishlatilayotgan:
+        yol = os.path.join(app.config["COVER_FOLDER"], muqova)
+        if os.path.exists(yol):
+            os.remove(yol)
+
+
 def bolim_slug(bolim):
     """Bo'lim nomini HTML id sifatida ishlatish uchun xavfsiz qatorga aylantiradi."""
     if not bolim:
@@ -1036,6 +1058,7 @@ def ochirish(bolim, idx):
         return redirect(url_for("bosh_sahifa"))
     m[bolim].pop(idx)
     kitoblar_saqlash(m)
+    fayllarni_tozalash(kitob, m)
     return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
 
 
