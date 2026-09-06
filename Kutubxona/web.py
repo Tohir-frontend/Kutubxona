@@ -2,7 +2,7 @@
 Xorazm pedagogika texnikumi elektron kutubxonasi
 Foydalanuvchi tizimi bilan (ro'yxatdan o'tish, kirish, email tasdiqlash)
 """
-from flask import Flask, render_template_string, request, redirect, url_for, session, flash
+from flask import Flask, render_template_string, request, redirect, url_for, session, flash, jsonify
 from flask_wtf import CSRFProtect
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -208,6 +208,8 @@ HTML = """
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Xorazm Pedagogika Texnikumi Kutubxonasi</title>
 <style>
   * { box-sizing: border-box; }
@@ -217,11 +219,16 @@ HTML = """
   ::-webkit-scrollbar-thumb { background: #8da8c7; border: 4px solid #dce5ef; border-radius: 10px; min-height: 48px; }
   ::-webkit-scrollbar-thumb:hover { background: #1a3a6e; }
   body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); margin: 0; min-height: 100vh; }
-  .header { background: rgba(0,0,0,0.3); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
+  .header { background: rgba(0,0,0,0.3); color: white; }
+  .header-inner { max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
   .header h1 { margin: 0; font-size: 22px; }
-  .header-right a { color: white; margin-left: 15px; text-decoration: none; }
+  .header-right { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 15px; }
+  .header-right a { color: white; text-decoration: none; }
+  .btn-chiqish { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #e63950, #b8283d); color: #fff !important; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 8px rgba(184, 40, 61, 0.5); transition: transform 0.15s, box-shadow 0.15s, background 0.15s; }
+  .btn-chiqish:hover { background: linear-gradient(135deg, #ff4d64, #d32f45); transform: translateY(-2px) scale(1.05); box-shadow: 0 5px 14px rgba(184, 40, 61, 0.7); }
+  .btn-chiqish:active { transform: translateY(0) scale(0.96); box-shadow: 0 2px 6px rgba(184, 40, 61, 0.5); }
   .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-  .nav { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+  .nav { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; position: sticky; top: 10px; z-index: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
   .nav a { color: #1a3a6e; margin: 0 12px; text-decoration: none; font-weight: bold; }
   .flash { padding: 12px; border-radius: 6px; margin: 10px auto; max-width: 600px; text-align: center; }
   .flash-muvaffaqiyat { background: #d4edda; color: #155724; }
@@ -260,23 +267,64 @@ HTML = """
   .reader { background: #fff; padding: 20px; border-radius: 10px; text-align: center; }
   .reader iframe { width: 100%; height: 600px; border: none; border-radius: 8px; }
 
+  .btn-qaytish { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #ff7a45, #ff4d4d); color: #fff; border: none; padding: 12px 22px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 77, 77, 0.45); transition: transform 0.15s, box-shadow 0.15s; }
+  .btn-qaytish:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 18px rgba(255, 77, 77, 0.6); }
+  .btn-qaytish:active { transform: translateY(0) scale(0.98); }
+  .btn-qaytish .btn-qaytish-ok { font-size: 18px; }
+  .btn-qaytish .btn-qaytish-esc { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.6); border-radius: 6px; padding: 2px 8px; font-size: 12px; letter-spacing: 0.5px; }
+
   .karusel { background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   .karusel-track { display: flex; transition: transform 2s ease-in-out; }
   .karusel-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; background: #000 }
   .karusel-slide img { width: 100%; height: 400px; object-fit: contain; display: block }
+
+  @media (max-width: 700px) {
+    .header-inner { flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 12px; }
+    .header h1 { font-size: 18px; }
+    .header-right { justify-content: center; }
+    .container { padding: 10px; }
+    .nav { padding: 10px; margin-bottom: 14px; }
+    .nav a { margin: 0 6px; font-size: 14px; display: inline-block; }
+    .bolim-sarlavha { padding: 10px; margin: 14px 0 8px; }
+    .bolim-sarlavha h2 { font-size: 17px; }
+    .kitoblar { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .muqova { height: 180px; font-size: 34px; }
+    .yulduzcha { width: 28px; height: 28px; font-size: 16px; }
+    .karta-tana { padding: 10px; }
+    .karta-tana h3 { font-size: 14px; }
+    .karta-tana p { font-size: 12px; }
+    .btn { font-size: 11px; padding: 6px; min-width: 60px; }
+    .auth-form { padding: 18px; margin: 16px auto; max-width: 92%; }
+    .qidiruv-form { flex-direction: column; }
+    .karusel-slide img { height: 220px; }
+    .reader { padding: 10px; }
+    .reader h2 { font-size: 18px; }
+    .btn-qaytish { font-size: 13px; padding: 10px 16px; }
+    #pdf-controls { position: static !important; box-shadow: none !important; border-radius: 8px !important; justify-content: center !important; }
+    #pdf-canvas-wrap { margin-bottom: 20px !important; }
+    #search-text { width: 100% !important; }
+  }
+
+  @media (max-width: 420px) {
+    .kitoblar { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+    .muqova { height: 140px; font-size: 26px; }
+    #search-status { display: none; }
+  }
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>Xorazm Pedagogika Texnikumi — Kutubxona</h1>
-  <div class="header-right">
-    {% if foydalanuvchi %}
-      <span>Salom, <b>{{ foydalanuvchi.ism }}</b>!</span>
-      <a href="{{ url_for('chiqish') }}">Chiqish</a>
-    {% else %}
-      <a href="{{ url_for('kirish') }}">Kirish</a>
-      <a href="{{ url_for('royxat') }}">Ro'yxatdan o'tish</a>
-    {% endif %}
+  <div class="header-inner">
+    <h1>Xorazm Pedagogika Texnikumi — Kutubxona</h1>
+    <div class="header-right">
+      {% if foydalanuvchi %}
+        <span>Salom, <b>{{ foydalanuvchi.ism }}</b>!</span>
+        <a class="btn-chiqish" href="{{ url_for('chiqish') }}">⏻ Chiqish</a>
+      {% else %}
+        <a href="{{ url_for('kirish') }}">Kirish</a>
+        <a href="{{ url_for('royxat') }}">Ro'yxatdan o'tish</a>
+      {% endif %}
+    </div>
   </div>
 </div>
 <div class="container">
@@ -328,8 +376,9 @@ HTML = """
               {{ kitob.nomi[0]|upper }}
             {% endif %}
             {% if foydalanuvchi %}
-              <a class="yulduzcha {{ 'faol' if kitob.id in sevimlilar else '' }}"
-                 href="{{ url_for('sevimli_belgilash', bolim=bolim, idx=loop.index0) }}"
+              <a class="yulduzcha {{ 'faol' if kitob.id in sevimlilar else '' }}" href="#"
+                 data-url="{{ url_for('sevimli_belgilash', bolim=bolim, idx=loop.index0) }}"
+                 onclick="return sevimliBosildi(this, event)"
                  title="Sevimlilarga qo'shish/olib tashlash">{{ '★' if kitob.id in sevimlilar else '☆' }}</a>
             {% endif %}
           </div>
@@ -371,8 +420,9 @@ HTML = """
             {{ item.kitob.nomi[0]|upper }}
           {% endif %}
           {% if foydalanuvchi %}
-            <a class="yulduzcha {{ 'faol' if item.kitob.id in sevimlilar else '' }}"
-               href="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx) }}"
+            <a class="yulduzcha {{ 'faol' if item.kitob.id in sevimlilar else '' }}" href="#"
+               data-url="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx) }}"
+               onclick="return sevimliBosildi(this, event)"
                title="Sevimlilarga qo'shish/olib tashlash">{{ '★' if item.kitob.id in sevimlilar else '☆' }}</a>
           {% endif %}
         </div>
@@ -394,15 +444,16 @@ HTML = """
     {% if natija %}
     <div class="kitoblar" style="margin-top:20px">
       {% for item in natija %}
-      <div class="karta">
+      <div class="karta" data-olib-tashlansin="1">
         <div class="muqova">
           {% if item.kitob.muqova %}
             <img src="{{ url_for('static', filename='covers/' + item.kitob.muqova) }}" alt="">
           {% else %}
             {{ item.kitob.nomi[0]|upper }}
           {% endif %}
-          <a class="yulduzcha faol"
-             href="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx, keyingi='sevimlilar') }}"
+          <a class="yulduzcha faol" href="#"
+             data-url="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx) }}"
+             onclick="return sevimliBosildi(this, event)"
              title="Sevimlilardan olib tashlash">★</a>
         </div>
         <div class="karta-tana">
@@ -464,8 +515,11 @@ HTML = """
     </form>
 
   {% elif sahifa == 'ochish' %}
-    <div class="nav">
-      <button type="button" class="pdf-btn" onclick="qaytish()">← Oldingi joyga qaytish</button>
+    <div class="nav" style="text-align:left; background:transparent; padding:0; box-shadow:none; position:static">
+      <button type="button" class="btn-qaytish" onclick="qaytish()">
+        <span class="btn-qaytish-ok">←</span> Oldingi joyga qaytish
+        <span class="btn-qaytish-esc">Esc</span>
+      </button>
     </div>
     <div class="reader">
       <h2>{{ kitob.nomi }} — {{ kitob.muallif }}</h2>
@@ -488,7 +542,7 @@ HTML = """
         <a class="pdf-btn" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download style="background:#28a745; text-decoration:none">⬇ Yuklab</a>
       </div>
 
-      <div style="position:relative; background:#555; padding:10px; border-radius:8px; margin-bottom:80px">
+      <div id="pdf-canvas-wrap" style="position:relative; background:#555; padding:10px; border-radius:8px; margin-bottom:80px">
         <div id="pdf-viewer" style="display:flex; justify-content:center; min-height:600px">
           <canvas id="pdf-canvas" style="background:white; box-shadow:0 4px 12px rgba(0,0,0,0.3); max-width:100%"></canvas>
         </div>
@@ -610,6 +664,27 @@ HTML = """
     }).catch(err => {
       document.getElementById('pdf-loading').textContent = 'Xato: ' + err.message;
     });
+
+    document.addEventListener('keydown', function(e) {
+      const maydonda = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+      if (maydonda) return;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextPage();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevPage();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        window.scrollBy({ top: 400, behavior: 'smooth' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        window.scrollBy({ top: -400, behavior: 'smooth' });
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        qaytish();
+      }
+    });
     </script>
     <style>
     #pdf-controls { padding:clamp(4px, 0.6vw, 8px) !important; gap:clamp(4px, 0.7vw, 10px) !important; font-size:clamp(10px, 1vw, 13px); }
@@ -675,6 +750,34 @@ HTML = """
   }
 </script>
 {% endif %}
+
+<script>
+function sevimliBosildi(el, event) {
+  event.preventDefault();
+  const url = el.getAttribute('data-url');
+  const token = document.querySelector('meta[name="csrf-token"]').content;
+  fetch(url, { method: 'POST', headers: { 'X-CSRFToken': token } })
+    .then(r => r.json())
+    .then(data => {
+      if (data.xato) { return; }
+      if (data.faol) {
+        el.classList.add('faol');
+        el.textContent = '★';
+      } else {
+        el.classList.remove('faol');
+        el.textContent = '☆';
+      }
+      const karta = el.closest('[data-olib-tashlansin]');
+      if (karta && !data.faol) {
+        karta.style.transition = 'opacity 0.3s';
+        karta.style.opacity = '0';
+        setTimeout(() => karta.remove(), 300);
+      }
+    })
+    .catch(() => {});
+  return false;
+}
+</script>
 </body>
 </html>
 """
@@ -721,31 +824,27 @@ def sevimlilar_sahifa():
                                    natija=natija, foydalanuvchi=user, sevimlilar=mening)
 
 
-@app.route("/sevimli/<bolim>/<int:idx>")
+@app.route("/sevimli/<bolim>/<int:idx>", methods=["POST"])
 def sevimli_belgilash(bolim, idx):
+    """AJAX orqali kitobni sevimlilarga qo'shadi/olib tashlaydi, sahifa yangilanmaydi."""
     user = joriy_foydalanuvchi()
     if not user:
-        flash("Sevimlilarga qo'shish uchun tizimga kiring", "xato")
-        return redirect(url_for("kirish"))
+        return jsonify({"xato": "Tizimga kirilmagan"}), 401
     m = kitoblar_yuklash()
     kitob = kitobni_topish(m, bolim, idx)
     if kitob is None:
-        flash("Kitob topilmadi", "xato")
-        return redirect(url_for("bosh_sahifa"))
+        return jsonify({"xato": "Kitob topilmadi"}), 404
     kid = kitob["id"]
     f = foydalanuvchilar_yuklash()
     ro_yxat = f["sevimlilar"].setdefault(user["email"], [])
     if kid in ro_yxat:
         ro_yxat.remove(kid)
-        flash("Sevimlilardan olib tashlandi", "muvaffaqiyat")
+        faol = False
     else:
         ro_yxat.append(kid)
-        flash("Sevimlilarga qo'shildi", "muvaffaqiyat")
+        faol = True
     foydalanuvchilar_saqlash(f)
-    keyingi = request.args.get("keyingi")
-    if keyingi == "sevimlilar":
-        return redirect(url_for("sevimlilar_sahifa"))
-    return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
+    return jsonify({"faol": faol})
 
 
 @app.route("/royxat", methods=["GET", "POST"])
