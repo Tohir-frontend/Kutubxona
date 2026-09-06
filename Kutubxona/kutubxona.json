@@ -1,173 +1,303 @@
 {
   "Umumta'lim fanlar": [
     {
-      "nomi": "Fizika",
+      "nomi": "10-sinf Fizika",
       "muallif": "N.Sh.Turdiyev",
       "yili": "2017",
       "muqova": "photo_2026-09-05_21-09-06.jpg",
-      "fayl": "fizika_10_uzb.pdf"
+      "fayl": "fizika_10_uzb.pdf",
+      "id": "1756c3be3d88424fa4ded88efdc6e7f8"
     },
     {
-      "nomi": "Fizika",
+      "nomi": "11-sinf Fizika",
       "muallif": "N.Sh.Turdiyev",
       "yili": "2018",
       "muqova": "photo_2026-09-05_23-00-29.jpg",
       "fayl": "11-sinf_11-Sinf_Fizika_2018.pdf",
-      "tomonidan": "erjanovtohir1993@gmail.com"
+      "tomonidan": "erjanovtohir1993@gmail.com",
+      "id": "a2dafe2a243f43259f6e48d0ae15d11b"
     },
     {
-      "nomi": "adabiyot 10-sinf 2-qism",
+      "nomi": "Adabiyot 10-sinf 2-qism",
       "muallif": "Boqijon To'xliyev",
       "yili": "2018",
       "muqova": "adabiyot_10-sinf_2-qism.jpg",
       "fayl": "adabiyot_2qism_10_uzb.pdf",
-      "tomonidan": "erjanovtohir1993@gmail.com"
+      "tomonidan": "erjanovtohir1993@gmail.com",
+      "id": "5b1496be28f241ee92d14ea27dbb3f12"
     },
     {
-      "nomi": "adabiyot 10-sinf 1-qism",
+      "nomi": "Adabiyot 10-sinf 1-qism",
       "muallif": "Boqijon To'xliyev",
       "yili": "2018",
       "muqova": "adabiyot_10_uzb_1-qism.jpg",
       "fayl": "adabiyot_10_uzb.pdf",
-      "tomonidan": "erjanovtohir1993@gmail.com"
+      "tomonidan": "erjanovtohir1993@gmail.com",
+      "id": "2d5fb258cc874043b31c8d5fc402d4ff"
+    },
+    {
+      "nomi": "10-sinf Ingliz tili",
+      "muallif": "F.Rashidova",
+      "yili": "2017",
+      "muqova": "photo_2026-09-06_10-58-17.jpg",
+      "fayl": "ingliz_tili_10_uzb.pdf",
+      "tomonidan": "tokhirerjanov1993@gmail.com",
+      "id": "524d91f8c1534e65873100808a2999da"
+    },
+    {
+      "nomi": "10-sinf Rus tili",
+      "muallif": "С.Ю. Исламбекова",
+      "yili": "2017",
+      "muqova": "1.jpg",
+      "fayl": "rus_tili_10_uzbqardosh.pdf",
+      "id": "b3fa98c013ae416c94c807b80abc5bcd"
+    },
+    {
+      "nomi": "10-sinf O'zbekiston tarixi",
+      "muallif": "Qahramon Rajabov",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_11.57.49.png",
+      "fayl": "ozbekiston_tarixi_10_uzb.pdf",
+      "id": "1f71f4585d2741f5919daf3eefe033b7"
+    },
+    {
+      "nomi": "10-sinf Organik kimyo",
+      "muallif": "A.Mutaliboy",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_11.59.26.png",
+      "fayl": "organik_kimyo_10_uzb.pdf",
+      "id": "18b5aa03654d45b9bd530f3604f5fced"
+    },
+    {
+      "nomi": "10-sinf Ona tili",
+      "muallif": "BAXTIYOR MENGLIYEV",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.01.10.png",
+      "fayl": "ona_tili_10_uzb.pdf",
+      "id": "6468bafd45644c6b98f0899eebe9fe9c"
+    },
+    {
+      "nomi": "10-sinf Matematika",
+      "muallif": "M.A.Mirzaahmedov",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.02.17.png",
+      "fayl": "matematika_10_uzb.pdf",
+      "id": "3dc4d268411347dca2eb64e72d1a5778"
+    },
+    {
+      "nomi": "10-11-sinf Ma'naviyat asoslari",
+      "muallif": "",
+      "yili": "2017",
+      "muqova": "",
+      "fayl": "manaviyat_asoslari_10_11_uzb.pdf",
+      "id": "5a73c283eef8456fa1fc449230d6253e"
+    },
+    {
+      "nomi": "10-sinf Jahon tarixi",
+      "muallif": "Shuhrat Ergashev",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.04.26.png",
+      "fayl": "jahon_tarixi_10_uzb.pdf",
+      "id": "dd57414b851b4dd48bea45a33a3de80e"
+    },
+    {
+      "nomi": "10-sinf Informatika",
+      "muallif": "T.Nodirbek",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.05.18.png",
+      "fayl": "informatika_10_uzb.pdf",
+      "id": "a0eed184bd1e4dba9f9e6de24c18361c"
+    },
+    {
+      "nomi": "10-sinf Geografiya",
+      "muallif": "Sh. M. Sharipov,",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.07.38.png",
+      "fayl": "geografiya_10_uzb.pdf",
+      "id": "671320c96cd344eeaa604af6dfa437f3"
+    },
+    {
+      "nomi": "10-sinf Dunyo dinlari tarixi",
+      "muallif": "Z. ISLOMOV",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.08.48.png",
+      "fayl": "dunyo_dinlari_tarixi_10_uzb.pdf",
+      "id": "24be7daf7e3646cdb5cf9492e443039d"
+    },
+    {
+      "nomi": "10-sinf Davlat va huquq asoslari",
+      "muallif": "V. А. Kostetskiy",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.09.35.png",
+      "fayl": "davlat_va_huquq_asoslari_10_uzb.pdf",
+      "id": "69b91caeefee410cbfc1761a396988a7"
+    },
+    {
+      "nomi": "10-sinf Chaqiruvga qadar boshlang'ich harbiy tayyorgarlik",
+      "muallif": "Sh. UBAYDULLAYEV",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.10.25.png",
+      "fayl": "chaqiruvga_qadar_boshlangich_tayyorgarlik_10_uzb.pdf",
+      "id": "3f890d1273674122b3f828ba2730edc6"
+    },
+    {
+      "nomi": "10-sinf Biologiya",
+      "muallif": "A. G‘аfurоv",
+      "yili": "2017",
+      "muqova": "Screenshot_09-06-2026_12.11.09.png",
+      "fayl": "biologiya_10_uzb.pdf",
+      "id": "9cf3a58e8b77418388cc9fecd48534cc"
+    },
+    {
+      "nomi": "11-sinf Umumiy kimyo",
+      "muallif": "S.Masharipov",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.19.43.png",
+      "fayl": "umumiy_kimyo_11_uzb.pdf",
+      "id": "c57c01ffbb404966b4e99a92b62f384e"
+    },
+    {
+      "nomi": "11-sinf Tadbirkorlik asoslari",
+      "muallif": "U.G'afurov",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.21.18.png",
+      "fayl": "tadbirkorlik_asoslari_11_uzb.pdf",
+      "id": "78346e247df7490db21fc8adc9effbe9"
+    },
+    {
+      "nomi": "11-sinf O'zbekiston tarixi",
+      "muallif": "Narzulla Jo‘rayev,",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.22.06.png",
+      "fayl": "ozbekiston_tarixi_11_uzb.pdf",
+      "id": "ac478df462a54427a95508b10feeebbf"
+    },
+    {
+      "nomi": "11-sinf Matematika 2-qism",
+      "muallif": "M.A. Mirzaahmedov",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.23.00.png",
+      "fayl": "matematika_2qism_11_uzb.pdf",
+      "id": "74c1aa91e3c34357838ef76d8483b743"
+    },
+    {
+      "nomi": "11-sinf Matematika 1-qism",
+      "muallif": "M.A. Mirzaahmedov",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.23.43.png",
+      "fayl": "matematika_1qism_11_uzb.pdf",
+      "id": "2427f726f1f9474597e449447b2a39ee"
+    },
+    {
+      "nomi": "11-sinf Jahon tarixi",
+      "muallif": "Shuhrat Ergashev",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.24.18.png",
+      "fayl": "jahon_tarixi_11_uzb.pdf",
+      "id": "382cd47f8bbd496a9a40e3236dbbec1f"
+    },
+    {
+      "nomi": "11-sinf Ingliz tili",
+      "muallif": "Feruza Rashidova",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.25.12.png",
+      "fayl": "ingliz_tili_11_uzb.pdf",
+      "id": "d628c1c66abc473eaf070e614b00573a"
+    },
+    {
+      "nomi": "11-sinf Informatika",
+      "muallif": "T.Nodirbek",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.26.10.png",
+      "fayl": "informatika_11_uzb.pdf",
+      "id": "a8eb176af3cc45c2843243150f262a86"
+    },
+    {
+      "nomi": "11-sinf Dunyo dinlari tarixi",
+      "muallif": "Z. ISLOMOV,",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.26.57.png",
+      "fayl": "dunyo_dinlari_tarixi_11_uzb.pdf",
+      "id": "a294cfde4d064a48ab0ee490356ec3e2"
+    },
+    {
+      "nomi": "11-sinf Davlat va huquq asoslari",
+      "muallif": "N. ISMATOVA",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.27.37.png",
+      "fayl": "davlat_va_huquq_asoslari_11_uzb.pdf",
+      "id": "858307c4c9b14860a0d8957f9c980820"
+    },
+    {
+      "nomi": "11-sinf Chaqiruvga qadar boshlang'ich harbiy tayyorgarlik",
+      "muallif": "SH. UBAYDULLAYEV",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.28.20.png",
+      "fayl": "chaqiruvga_qadar_boshlangich_tayyorgarlik_11_uzb.pdf",
+      "id": "439e88386566483ebd112cd9317f1a3a"
+    },
+    {
+      "nomi": "11-sinf Biologiya",
+      "muallif": "A. G‘аfurоv",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.29.04.png",
+      "fayl": "biologiya_11_uzb.pdf",
+      "id": "c903dc40162e4e51abd7f71d1a184bf5"
+    },
+    {
+      "nomi": "11-sinf Astronomiya",
+      "muallif": "M.Mamadazimov",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.30.01.png",
+      "fayl": "astronomiya_11_uzb.pdf",
+      "id": "e4bcf25476324a259d2bb74e58efe1e5"
+    },
+    {
+      "nomi": "11-sinf Adabiyot 2-qism",
+      "muallif": "Boqijon To‘xliyev",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.30.47.png",
+      "fayl": "adabiyot_2qism_11_uzb.pdf",
+      "id": "44336a769d0e42488a423fa9b1b26de8"
+    },
+    {
+      "nomi": "11-sinf Adabiyot 1-qism",
+      "muallif": "Boqijon To'xliyev",
+      "yili": "2018",
+      "muqova": "Screenshot_09-06-2026_12.36.53.png",
+      "fayl": "adabiyot_1qism_11_uzb.pdf",
+      "id": "c2f4a9eb2bef432b8ee2ae46bb28a02f"
     }
   ],
   "Umumkasbiy fanlar": [
     {
-      "nomi": "Pedagogika asoslari",
-      "muallif": "X. To'rayev",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Psixologiya",
-      "muallif": "G. Yusufova",
-      "yili": "2019"
-    },
-    {
-      "nomi": "Ta'lim texnologiyalari",
-      "muallif": "M. Xolmatov",
-      "yili": "2021"
-    },
-    {
-      "nomi": "Metodika",
-      "muallif": "A. Abdullayev",
-      "yili": "2018"
-    },
-    {
-      "nomi": "Axborot texnologiyalari",
-      "muallif": "B. Tursunov",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Didaktika",
-      "muallif": "N. Saidov",
-      "yili": "2019"
-    },
-    {
-      "nomi": "Tarbiyaviy ishlar",
-      "muallif": "S. Hasanov",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Kasbiy kompetentsiya",
-      "muallif": "D. Yo'ldosheva",
-      "yili": "2021"
+      "nomi": "Mehnat muxofazasi va texnika xavfsizligi",
+      "muallif": "Noma'lum",
+      "yili": "Noma'lum",
+      "muqova": "Screenshot_09-06-2026_13.01.41.png",
+      "fayl": "Mehnat_muhofazasi_toplam_1-24.pdf",
+      "tomonidan": "erjanovtohir1993@gmail.com",
+      "id": "1d4e9348a2314a9b9b44ee83f2e27499"
     }
   ],
   "Maxsus fanlar": [
     {
-      "nomi": "Boshlang'ich ta'lim metodikasi",
-      "muallif": "M. Rajabov",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Matematika o'qitish metodikasi",
-      "muallif": "A. Qodirov",
-      "yili": "2019"
-    },
-    {
-      "nomi": "Ona tili o'qitish metodikasi",
-      "muallif": "Z. Mirzayev",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Informatika asoslari",
-      "muallif": "K. Yusupov",
-      "yili": "2021"
-    },
-    {
-      "nomi": "Bolalar adabiyoti",
-      "muallif": "R. Ortiqov",
-      "yili": "2019"
-    },
-    {
-      "nomi": "Tabiiy fanlar",
-      "muallif": "L. Hamidova",
-      "yili": "2020"
-    },
-    {
-      "nomi": "Sinif rahbarligi",
-      "muallif": "B. Sultonov",
-      "yili": "2018"
-    },
-    {
-      "nomi": "Pedagogik mahorat",
-      "muallif": "T. Ahmedova",
-      "yili": "2021"
+      "nomi": "Maktabgacha yoshdagi bolalar ta'lim-tarbiyasida bilish jarayonining rivojlanishi",
+      "muallif": "Noma'lum",
+      "yili": "Noma'lum",
+      "muqova": "Screenshot_09-06-2026_12.46.21.png",
+      "fayl": "Maktabgacha_yoshdagi_bolalar_talim-tarbiyasida_bilish_jarayoning_rivojlanishi_Ab.pdf",
+      "id": "fc0494c3fcdf456c8d99f23533820035"
     }
   ],
   "Badiiy adabiyotlar": [
-    {
-      "nomi": "O'tkan kunlar",
-      "muallif": "Abdulla Qodiriy",
-      "yili": "1926"
-    },
-    {
-      "nomi": "Mehrobdan chayon",
-      "muallif": "Abdulla Qodiriy",
-      "yili": "1929"
-    },
-    {
-      "nomi": "Sarob",
-      "muallif": "Abdulla Qahhor",
-      "yili": "1938"
-    },
-    {
-      "nomi": "Shum bola",
-      "muallif": "G'afur G'ulom",
-      "yili": "1936"
-    },
-    {
-      "nomi": "Yulduzli tunlar",
-      "muallif": "Pirimqul Qodirov",
-      "yili": "1978"
-    },
-    {
-      "nomi": "Quyoshni qaytaraman",
-      "muallif": "Said Ahmad",
-      "yili": "1967"
-    },
-    {
-      "nomi": "Boburnoma",
-      "muallif": "Zahiriddin Bobur",
-      "yili": "1502"
-    },
-    {
-      "nomi": "Oq kema",
-      "muallif": "Chingiz Aytmatov",
-      "yili": "1970"
-    },
     {
       "nomi": "Kecha va kunduz",
       "muallif": "Cho'lpon",
       "yili": "2000",
       "muqova": "kecha_va_kunduz.jpg",
-      "fayl": "Cholpon._Kecha_va_kunduz_roman.pdf"
-    },
-    {
-      "nomi": "Yorqinoy",
-      "muallif": "Mirtemir",
-      "yili": "1948"
+      "fayl": "Cholpon._Kecha_va_kunduz_roman.pdf",
+      "id": "eb21cd3975fc4f848bff7f0bf48848a8"
     }
   ]
 }

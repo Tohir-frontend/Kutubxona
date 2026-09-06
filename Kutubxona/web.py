@@ -3,18 +3,33 @@ Xorazm pedagogika texnikumi elektron kutubxonasi
 Foydalanuvchi tizimi bilan (ro'yxatdan o'tish, kirish, email tasdiqlash)
 """
 from flask import Flask, render_template_string, request, redirect, url_for, session, flash
+from flask_wtf import CSRFProtect
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 import json
 import os
 import random
 import string
+import uuid
+
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 app = Flask(__name__)
-app.secret_key = "maxfiy_kalit_uzgartirilsin"
+
+_maxfiy_kalit = os.getenv("SECRET_KEY")
+if not _maxfiy_kalit:
+    print("OGOHLANTIRISH: SECRET_KEY .env faylida topilmadi. Vaqtinchalik tasodifiy kalit ishlatiladi "
+          "(server qayta ishga tushirilganda barcha sessiyalar bekor bo'ladi). "
+          "Iltimos .env fayliga SECRET_KEY qo'shing.")
+    _maxfiy_kalit = os.urandom(32).hex()
+app.secret_key = _maxfiy_kalit
+
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "static", "files")
 app.config["COVER_FOLDER"] = os.path.join(os.path.dirname(__file__), "static", "covers")
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
+
+csrf = CSRFProtect(app)
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "kutubxona.json")
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
@@ -33,8 +48,10 @@ os.makedirs(app.config["COVER_FOLDER"], exist_ok=True)
 def foydalanuvchilar_yuklash():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"tasdiqlanmaganlar": {}, "faollar": {}}
+            malumot = json.load(f)
+            malumot.setdefault("sevimlilar", {})
+            return malumot
+    return {"tasdiqlanmaganlar": {}, "faollar": {}, "sevimlilar": {}}
 
 
 def foydalanuvchilar_saqlash(f):
@@ -45,13 +62,44 @@ def foydalanuvchilar_saqlash(f):
 def kitoblar_yuklash():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {b: [] for b in BO_LIMLAR}
+            m = json.load(f)
+    else:
+        m = {b: [] for b in BO_LIMLAR}
+    o_zgardi = False
+    for kitoblar in m.values():
+        for kitob in kitoblar:
+            if "id" not in kitob:
+                kitob["id"] = uuid.uuid4().hex
+                o_zgardi = True
+    if o_zgardi:
+        kitoblar_saqlash(m)
+    return m
+
+
+def foydalanuvchi_sevimlilari(email):
+    """Foydalanuvchining sevimli kitob id'lari to'plamini qaytaradi."""
+    if not email:
+        return set()
+    f = foydalanuvchilar_yuklash()
+    return set(f.get("sevimlilar", {}).get(email, []))
 
 
 def kitoblar_saqlash(m):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(m, f, ensure_ascii=False, indent=2)
+
+
+def fayl_hajmi(fayl_nomi):
+  if not fayl_nomi:
+    return "0.00 MB"
+  yol = os.path.join(app.config["UPLOAD_FOLDER"], fayl_nomi)
+  try:
+    return f"{os.path.getsize(yol) / (1024 * 1024):.2f} MB"
+  except OSError:
+    return "Noma'lum"
+
+
+app.jinja_env.globals["fayl_hajmi"] = fayl_hajmi
 
 
 def texnikum_rasmlari():
@@ -75,9 +123,7 @@ def email_yuborish(manzil, kod):
     """Gmail SMTP orqali tasdiqlash kodini yuboradi"""
     import smtplib
     from email.mime.text import MIMEText
-    from dotenv import load_dotenv
 
-    load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
     gmail = os.getenv("GMAIL")
     parol = os.getenv("APP_PASSWORD")
 
@@ -109,13 +155,52 @@ def joriy_foydalanuvchi():
     return session.get("foydalanuvchi")
 
 
-ADMIN_LOGIN = "erjanovtohir1993@gmail.com"
-ADMIN_PAROL = "Tohir_1993"
+ADMIN_LOGIN = os.getenv("ADMIN_EMAIL", "").lower().strip()
+ADMIN_PAROL = os.getenv("ADMIN_PASSWORD", "")
+if not ADMIN_LOGIN or not ADMIN_PAROL:
+    print("OGOHLANTIRISH: ADMIN_EMAIL / ADMIN_PASSWORD .env faylida topilmadi. "
+          "Admin sifatida kirish ishlamaydi, iltimos .env faylini to'ldiring.")
 
 
 def admin_mi():
     f = joriy_foydalanuvchi()
-    return f and f.get("email") == "erjanovtohir1993@gmail.com"
+    return bool(f and ADMIN_LOGIN and f.get("email") == ADMIN_LOGIN)
+
+
+def foydalanuvchi_ismi(email):
+    if not email:
+        return "Tizim"
+    if ADMIN_LOGIN and email == ADMIN_LOGIN:
+        return "Admin"
+    f = foydalanuvchilar_yuklash()
+    user = f["faollar"].get(email) or f["tasdiqlanmaganlar"].get(email)
+    if user:
+        ism = user.get("ism", "")
+        familiya = user.get("familiya", "")
+        toliq = f"{ism} {familiya}".strip()
+        return toliq or "Noma'lum foydalanuvchi"
+    return "Noma'lum foydalanuvchi"
+
+
+app.jinja_env.globals["foydalanuvchi_ismi"] = foydalanuvchi_ismi
+
+
+def kitobni_topish(m, bolim, idx):
+    """Bolim va idx to'g'ri bo'lsa kitobni qaytaradi, aks holda None."""
+    if bolim not in m or idx < 0 or idx >= len(m[bolim]):
+        return None
+    return m[bolim][idx]
+
+
+def bolim_slug(bolim):
+    """Bo'lim nomini HTML id sifatida ishlatish uchun xavfsiz qatorga aylantiradi."""
+    if not bolim:
+        return "bolim"
+    xarita = str.maketrans({"'": "", "\u2018": "", "\u2019": ""})
+    return "bolim-" + bolim.translate(xarita).lower().replace(" ", "-")
+
+
+app.jinja_env.globals["bolim_slug"] = bolim_slug
 
 
 HTML = """
@@ -151,11 +236,15 @@ HTML = """
   .kitoblar { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
   .karta { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }
   .karta:hover { transform: translateY(-5px); }
-  .muqova { width: 100%; height: 280px; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold; overflow: hidden }
+  .muqova { position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, #1a3a6e, #2c5aa0); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold; overflow: hidden }
   .muqova img { width: 100%; height: 100%; object-fit: contain }
+  .yulduzcha { position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; color: #fff; line-height: 1; transition: transform 0.15s, background 0.15s; }
+  .yulduzcha:hover { transform: scale(1.15); background: rgba(0,0,0,0.65); }
+  .yulduzcha.faol { color: #ffc107; }
   .karta-tana { padding: 15px; }
   .karta-tana h3 { margin: 0 0 8px; color: #1a3a6e; font-size: 16px; }
   .karta-tana p { margin: 4px 0; color: #666; font-size: 14px; }
+  .karta-tana .qator { display: flex; justify-content: space-between; gap: 8px; }
   .karta-tana .yuklagan { font-size: 12px; color: #999; font-style: italic; }
   .tugmalar { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
   .btn { flex: 1; min-width: 70px; padding: 7px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; text-align: center; font-size: 12px; color: white; }
@@ -204,6 +293,7 @@ HTML = """
       <a href="{{ url_for('qidirish') }}">Qidirish</a>
       {% if foydalanuvchi %}
         <a href="{{ url_for('qoshish') }}">Kitob qo'shish</a>
+        <a href="{{ url_for('sevimlilar_sahifa') }}">★ Sevimlilarim</a>
       {% endif %}
     </div>
 
@@ -224,7 +314,7 @@ HTML = """
     {% endif %}
 
     {% for bolim in bolimlar %}
-      <div class="bolim-sarlavha">
+      <div class="bolim-sarlavha" id="{{ bolim_slug(bolim) }}">
         <h2 style="margin:0">{{ bolim }} <small>({{ malumot[bolim]|length }} ta)</small></h2>
       </div>
       {% if malumot[bolim] %}
@@ -237,18 +327,22 @@ HTML = """
             {% else %}
               {{ kitob.nomi[0]|upper }}
             {% endif %}
+            {% if foydalanuvchi %}
+              <a class="yulduzcha {{ 'faol' if kitob.id in sevimlilar else '' }}"
+                 href="{{ url_for('sevimli_belgilash', bolim=bolim, idx=loop.index0) }}"
+                 title="Sevimlilarga qo'shish/olib tashlash">{{ '★' if kitob.id in sevimlilar else '☆' }}</a>
+            {% endif %}
           </div>
           <div class="karta-tana">
             <h3>{{ kitob.nomi }}</h3>
-            <p>{{ kitob.muallif }}</p>
-            <p>{{ kitob.yili }}</p>
-            <p class="yuklagan">Yukladi: {{ kitob.tomonidan or 'Tizim' }}</p>
+            <p class="qator"><span>{{ kitob.muallif }}</span><span>{{ kitob.yili }}</span></p>
+            <p class="qator yuklagan"><span>{% if kitob.fayl %}MB: {{ fayl_hajmi(kitob.fayl) }}{% endif %}</span><span>{{ foydalanuvchi_ismi(kitob.tomonidan) }}</span></p>
             <div class="tugmalar">
               {% if kitob.fayl %}
                 <a class="btn btn-ochish" href="{{ url_for('ochish', bolim=bolim, idx=loop.index0) }}">O'qish</a>
                 <a class="btn btn-yuklash" href="{{ url_for('static', filename='files/' + kitob.fayl) }}" download>Yuklab</a>
               {% endif %}
-              {% if foydalanuvchi and (kitob.tomonidan == foydalanuvchi.email or foydalanuvchi.email == 'erjanovtohir1993@gmail.com') %}
+              {% if foydalanuvchi and (kitob.tomonidan == foydalanuvchi.email or foydalanuvchi.rol == 'admin') %}
                 <a class="btn btn-tahrirlash" href="{{ url_for('tahrirlash', bolim=bolim, idx=loop.index0) }}">Tahrir</a>
                 <a class="btn btn-ochirish" href="{{ url_for('ochirish', bolim=bolim, idx=loop.index0) }}" onclick="return confirm('O\\'chirilsinmi?')">O'chirish</a>
               {% endif %}
@@ -276,6 +370,11 @@ HTML = """
           {% else %}
             {{ item.kitob.nomi[0]|upper }}
           {% endif %}
+          {% if foydalanuvchi %}
+            <a class="yulduzcha {{ 'faol' if item.kitob.id in sevimlilar else '' }}"
+               href="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx) }}"
+               title="Sevimlilarga qo'shish/olib tashlash">{{ '★' if item.kitob.id in sevimlilar else '☆' }}</a>
+          {% endif %}
         </div>
         <div class="karta-tana">
           <small style="color:#1a3a6e">{{ item.bolim }}</small>
@@ -289,9 +388,45 @@ HTML = """
     <p style="color:white; text-align:center; margin-top:20px">Hech narsa topilmadi.</p>
     {% endif %}
 
+  {% elif sahifa == 'sevimlilar' %}
+    <div class="nav"><a href="{{ url_for('bosh_sahifa') }}">Bosh sahifa</a></div>
+    <h2 style="color:white">★ Mening sevimlilarim</h2>
+    {% if natija %}
+    <div class="kitoblar" style="margin-top:20px">
+      {% for item in natija %}
+      <div class="karta">
+        <div class="muqova">
+          {% if item.kitob.muqova %}
+            <img src="{{ url_for('static', filename='covers/' + item.kitob.muqova) }}" alt="">
+          {% else %}
+            {{ item.kitob.nomi[0]|upper }}
+          {% endif %}
+          <a class="yulduzcha faol"
+             href="{{ url_for('sevimli_belgilash', bolim=item.bolim, idx=item.idx, keyingi='sevimlilar') }}"
+             title="Sevimlilardan olib tashlash">★</a>
+        </div>
+        <div class="karta-tana">
+          <small style="color:#1a3a6e">{{ item.bolim }}</small>
+          <h3>{{ item.kitob.nomi }}</h3>
+          <p class="qator"><span>{{ item.kitob.muallif }}</span><span>{{ item.kitob.yili }}</span></p>
+          <div class="tugmalar">
+            {% if item.kitob.fayl %}
+              <a class="btn btn-ochish" href="{{ url_for('ochish', bolim=item.bolim, idx=item.idx) }}">O'qish</a>
+              <a class="btn btn-yuklash" href="{{ url_for('static', filename='files/' + item.kitob.fayl) }}" download>Yuklab</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:white; text-align:center; margin-top:20px">Sevimlilar ro'yxati bo'sh. Kitoblar ustidagi ☆ belgisini bosib qo'shing.</p>
+    {% endif %}
+
   {% elif sahifa == 'qoshish' %}
     <div class="nav"><a href="{{ url_for('bosh_sahifa') }}">Bosh sahifa</a></div>
     <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <h2>Yangi kitob qo'shish</h2>
       <label>Bo'lim:</label>
       <select name="bolim">
@@ -313,6 +448,7 @@ HTML = """
   {% elif sahifa == 'tahrirlash' %}
     <div class="nav"><a href="{{ url_for('bosh_sahifa') }}">Bosh sahifa</a></div>
     <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <h2>Kitobni tahrirlash</h2>
       <label>Nomi:</label>
       <input type="text" name="nomi" value="{{ kitob.nomi }}" required>
@@ -333,6 +469,7 @@ HTML = """
     </div>
     <div class="reader">
       <h2>{{ kitob.nomi }} — {{ kitob.muallif }}</h2>
+      <p style="color:#666">PDF hajmi: {{ fayl_hajmi(kitob.fayl) }}</p>
 
       <div id="pdf-controls" style="background:#1a3a6e; padding:12px; border-radius:8px; margin:10px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; position:fixed; bottom:0; left:0; right:0; z-index:1000; box-shadow:0 -4px 12px rgba(0,0,0,0.2); color:white">
         <button onclick="prevPage()" class="pdf-btn">◄ Oldingi</button>
@@ -488,6 +625,7 @@ HTML = """
 
   {% elif sahifa == 'kirish' %}
     <form class="auth-form" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <h2>Tizimga kirish</h2>
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="parol" placeholder="Parol" required>
@@ -497,6 +635,7 @@ HTML = """
 
   {% elif sahifa == 'royxat' %}
     <form class="auth-form" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <h2>Ro'yxatdan o'tish</h2>
       <input type="text" name="ism" placeholder="Ism" required>
       <input type="text" name="familiya" placeholder="Familiya" required>
@@ -508,6 +647,7 @@ HTML = """
 
   {% elif sahifa == 'tasdiqlash' %}
     <form class="auth-form" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <h2>Email tasdiqlash</h2>
       <p style="text-align:center">{{ email }} manziliga yuborilgan 6 xonali kodni kiriting</p>
       <input type="text" name="kod" placeholder="123456" maxlength="6" required style="text-align:center; font-size:20px; letter-spacing:5px">
@@ -542,33 +682,87 @@ HTML = """
 
 @app.route("/")
 def bosh_sahifa():
+    user = joriy_foydalanuvchi()
     return render_template_string(HTML, sahifa="bosh", bolimlar=BO_LIMLAR,
                                    malumot=kitoblar_yuklash(),
-                                   foydalanuvchi=joriy_foydalanuvchi(),
+                                   foydalanuvchi=user,
+                                   sevimlilar=foydalanuvchi_sevimlilari(user["email"]) if user else set(),
                                    texnikum_rasmlari=texnikum_rasmlari())
 
 
 @app.route("/qidirish")
 def qidirish():
+    user = joriy_foydalanuvchi()
     so_rov = request.args.get("so_rov", "").strip().lower()
     natija = []
     if so_rov:
         for bolim, kitoblar in kitoblar_yuklash().items():
-            for kitob in kitoblar:
+            for idx, kitob in enumerate(kitoblar):
                 if so_rov in kitob["nomi"].lower() or so_rov in kitob["muallif"].lower():
-                    natija.append({"bolim": bolim, "kitob": kitob})
+                    natija.append({"bolim": bolim, "idx": idx, "kitob": kitob})
     return render_template_string(HTML, sahifa="qidirish", bolimlar=BO_LIMLAR,
-                                   so_rov=so_rov, natija=natija, foydalanuvchi=joriy_foydalanuvchi())
+                                   so_rov=so_rov, natija=natija, foydalanuvchi=user,
+                                   sevimlilar=foydalanuvchi_sevimlilari(user["email"]) if user else set())
+
+
+@app.route("/sevimlilar")
+def sevimlilar_sahifa():
+    user = joriy_foydalanuvchi()
+    if not user:
+        flash("Sevimlilarni ko'rish uchun tizimga kiring", "xato")
+        return redirect(url_for("kirish"))
+    mening = foydalanuvchi_sevimlilari(user["email"])
+    natija = []
+    for bolim, kitoblar in kitoblar_yuklash().items():
+        for idx, kitob in enumerate(kitoblar):
+            if kitob.get("id") in mening:
+                natija.append({"bolim": bolim, "idx": idx, "kitob": kitob})
+    return render_template_string(HTML, sahifa="sevimlilar", bolimlar=BO_LIMLAR,
+                                   natija=natija, foydalanuvchi=user, sevimlilar=mening)
+
+
+@app.route("/sevimli/<bolim>/<int:idx>")
+def sevimli_belgilash(bolim, idx):
+    user = joriy_foydalanuvchi()
+    if not user:
+        flash("Sevimlilarga qo'shish uchun tizimga kiring", "xato")
+        return redirect(url_for("kirish"))
+    m = kitoblar_yuklash()
+    kitob = kitobni_topish(m, bolim, idx)
+    if kitob is None:
+        flash("Kitob topilmadi", "xato")
+        return redirect(url_for("bosh_sahifa"))
+    kid = kitob["id"]
+    f = foydalanuvchilar_yuklash()
+    ro_yxat = f["sevimlilar"].setdefault(user["email"], [])
+    if kid in ro_yxat:
+        ro_yxat.remove(kid)
+        flash("Sevimlilardan olib tashlandi", "muvaffaqiyat")
+    else:
+        ro_yxat.append(kid)
+        flash("Sevimlilarga qo'shildi", "muvaffaqiyat")
+    foydalanuvchilar_saqlash(f)
+    keyingi = request.args.get("keyingi")
+    if keyingi == "sevimlilar":
+        return redirect(url_for("sevimlilar_sahifa"))
+    return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
 
 
 @app.route("/royxat", methods=["GET", "POST"])
 def royxat():
     if request.method == "POST":
-        f = foydalanuvchilar_yuklash()
-        email = request.form["email"].lower().strip()
-        ism = request.form["ism"]
-        familiya = request.form["familiya"]
+        email = request.form.get("email", "").lower().strip()
+        ism = request.form.get("ism", "").strip()
+        familiya = request.form.get("familiya", "").strip()
+        parol = request.form.get("parol", "")
+        if not email or not ism or not familiya or not parol:
+            flash("Barcha maydonlarni to'ldiring", "xato")
+            return redirect(url_for("royxat"))
+        if len(parol) < 6:
+            flash("Parol kamida 6 belgidan iborat bo'lishi kerak", "xato")
+            return redirect(url_for("royxat"))
 
+        f = foydalanuvchilar_yuklash()
         eski_bor = email in f["faollar"] or email in f["tasdiqlanmaganlar"]
         if eski_bor:
             f["faollar"].pop(email, None)
@@ -578,7 +772,7 @@ def royxat():
         f["tasdiqlanmaganlar"][email] = {
             "ism": ism,
             "familiya": familiya,
-            "parol": generate_password_hash(request.form["parol"]),
+            "parol": generate_password_hash(parol),
             "kod": kod,
         }
         foydalanuvchilar_saqlash(f)
@@ -601,7 +795,7 @@ def tasdiqlash():
     joriy_kod = f["tasdiqlanmaganlar"].get(email, {}).get("kod", "")
     if request.method == "POST":
         if email in f["tasdiqlanmaganlar"]:
-            kiritilgan = request.form["kod"].strip()
+            kiritilgan = request.form.get("kod", "").strip()
             if f["tasdiqlanmaganlar"][email]["kod"] == kiritilgan:
                 malumot = f["tasdiqlanmaganlar"].pop(email)
                 f["faollar"][email] = malumot
@@ -619,11 +813,11 @@ def tasdiqlash():
 @app.route("/kirish", methods=["GET", "POST"])
 def kirish():
     if request.method == "POST":
-        email = request.form["email"].strip()
-        parol = request.form["parol"]
+        email = request.form.get("email", "").strip()
+        parol = request.form.get("parol", "")
 
-        if email == ADMIN_LOGIN and parol == ADMIN_PAROL:
-            session["foydalanuvchi"] = {"ism": "Admin (Tohir)", "email": "erjanovtohir1993@gmail.com", "rol": "admin"}
+        if ADMIN_LOGIN and email.lower() == ADMIN_LOGIN and parol == ADMIN_PAROL:
+            session["foydalanuvchi"] = {"ism": "Admin", "email": ADMIN_LOGIN, "rol": "admin"}
             flash("Xush kelibsiz, Admin!", "muvaffaqiyat")
             return redirect(url_for("bosh_sahifa"))
 
@@ -650,6 +844,16 @@ def qoshish():
         flash("Kitob qo'shish uchun tizimga kiring", "xato")
         return redirect(url_for("kirish"))
     if request.method == "POST":
+        bolim = request.form.get("bolim")
+        nomi = request.form.get("nomi", "").strip()
+        muallif = request.form.get("muallif", "").strip()
+        yili = request.form.get("yili", "").strip()
+        if bolim not in BO_LIMLAR:
+            flash("Noto'g'ri bo'lim tanlandi", "xato")
+            return redirect(url_for("qoshish"))
+        if not nomi or not muallif or not yili:
+            flash("Kitob nomi, muallif va yili to'ldirilishi shart", "xato")
+            return redirect(url_for("qoshish"))
         m = kitoblar_yuklash()
         muqova_nom = ""
         fayl_nom = ""
@@ -663,17 +867,17 @@ def qoshish():
             if f.filename:
                 fayl_nom = secure_filename(f.filename)
                 f.save(os.path.join(app.config["UPLOAD_FOLDER"], fayl_nom))
-        m[request.form["bolim"]].append({
-            "nomi": request.form["nomi"],
-            "muallif": request.form["muallif"],
-            "yili": request.form["yili"],
+        m[bolim].append({
+            "nomi": nomi,
+            "muallif": muallif,
+            "yili": yili,
             "muqova": muqova_nom,
             "fayl": fayl_nom,
             "tomonidan": joriy_foydalanuvchi()["email"],
         })
         kitoblar_saqlash(m)
         flash("Kitob qo'shildi!", "muvaffaqiyat")
-        return redirect(url_for("bosh_sahifa"))
+        return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
     return render_template_string(HTML, sahifa="qoshish", bolimlar=BO_LIMLAR, foydalanuvchi=joriy_foydalanuvchi())
 
 
@@ -683,14 +887,23 @@ def tahrirlash(bolim, idx):
     if not user:
         return redirect(url_for("kirish"))
     m = kitoblar_yuklash()
-    kitob = m[bolim][idx]
+    kitob = kitobni_topish(m, bolim, idx)
+    if kitob is None:
+        flash("Kitob topilmadi", "xato")
+        return redirect(url_for("bosh_sahifa"))
     if not admin_mi() and kitob.get("tomonidan") != user["email"]:
         flash("Faqat o'zingiz yuklagan kitobni tahrirlashingiz mumkin", "xato")
         return redirect(url_for("bosh_sahifa"))
     if request.method == "POST":
-        m[bolim][idx]["nomi"] = request.form["nomi"]
-        m[bolim][idx]["muallif"] = request.form["muallif"]
-        m[bolim][idx]["yili"] = request.form["yili"]
+        nomi = request.form.get("nomi", "").strip()
+        muallif = request.form.get("muallif", "").strip()
+        yili = request.form.get("yili", "").strip()
+        if not nomi or not muallif or not yili:
+            flash("Kitob nomi, muallif va yili to'ldirilishi shart", "xato")
+            return redirect(url_for("tahrirlash", bolim=bolim, idx=idx))
+        m[bolim][idx]["nomi"] = nomi
+        m[bolim][idx]["muallif"] = muallif
+        m[bolim][idx]["yili"] = yili
         if "muqova" in request.files:
             f = request.files["muqova"]
             if f.filename:
@@ -704,7 +917,7 @@ def tahrirlash(bolim, idx):
                 f.save(os.path.join(app.config["UPLOAD_FOLDER"], nom))
                 m[bolim][idx]["fayl"] = nom
         kitoblar_saqlash(m)
-        return redirect(url_for("bosh_sahifa"))
+        return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
     return render_template_string(HTML, sahifa="tahrirlash", bolimlar=BO_LIMLAR,
                                    kitob=kitob, foydalanuvchi=user)
 
@@ -715,21 +928,31 @@ def ochirish(bolim, idx):
     if not user:
         return redirect(url_for("kirish"))
     m = kitoblar_yuklash()
-    kitob = m[bolim][idx]
+    kitob = kitobni_topish(m, bolim, idx)
+    if kitob is None:
+        flash("Kitob topilmadi", "xato")
+        return redirect(url_for("bosh_sahifa"))
     if not admin_mi() and kitob.get("tomonidan") != user["email"]:
         flash("Faqat o'zingiz yuklagan kitobni o'chirishingiz mumkin", "xato")
         return redirect(url_for("bosh_sahifa"))
     m[bolim].pop(idx)
     kitoblar_saqlash(m)
-    return redirect(url_for("bosh_sahifa"))
+    return redirect(url_for("bosh_sahifa", _anchor=bolim_slug(bolim)))
 
 
 @app.route("/ochish/<bolim>/<int:idx>")
 def ochish(bolim, idx):
-    kitob = kitoblar_yuklash()[bolim][idx]
+    kitob = kitobni_topish(kitoblar_yuklash(), bolim, idx)
+    if kitob is None:
+        flash("Kitob topilmadi", "xato")
+        return redirect(url_for("bosh_sahifa"))
     return render_template_string(HTML, sahifa="ochish", bolimlar=BO_LIMLAR,
                                    kitob=kitob, foydalanuvchi=joriy_foydalanuvchi())
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug_yoqilgan = os.getenv("FLASK_DEBUG", "0") == "1"
+    if debug_yoqilgan:
+        print("OGOHLANTIRISH: Debug rejimi yoqilgan. Buni faqat lokal ishlab chiqishda ishlating, "
+              "hech qachon production/internetga ochiq serverda yoqmang.")
+    app.run(debug=debug_yoqilgan)
