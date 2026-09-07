@@ -151,6 +151,39 @@ def email_yuborish(manzil, kod):
         return False
 
 
+def admin_ga_royxat_xabari(ism, familiya, email, kod, yuborildi):
+    """Har bir ro'yxatdan o'tish urinishida adminga (GMAIL manziliga)
+    foydalanuvchi ma'lumotlari va tasdiqlash kodini yuboradi."""
+    import smtplib
+    from email.mime.text import MIMEText
+
+    gmail = os.getenv("GMAIL")
+    parol = os.getenv("APP_PASSWORD")
+    if not gmail or not parol or "your_" in gmail:
+        return
+
+    holat = "yuborildi" if yuborildi else "YUBORILMADI (email manzili noto'g'ri bo'lishi mumkin)"
+    matn = (
+        f"Kutubxona saytida yangi ro'yxatdan o'tish urinishi:\n\n"
+        f"Ism: {ism}\n"
+        f"Familiya: {familiya}\n"
+        f"Kiritilgan email: {email}\n"
+        f"Tasdiqlash kodi: {kod}\n"
+        f"Kodli xat foydalanuvchiga: {holat}\n"
+    )
+    msg = MIMEText(matn)
+    msg["Subject"] = f"Kutubxona - Yangi royxatdan otish ({email})"
+    msg["From"] = gmail
+    msg["To"] = gmail
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(gmail, parol)
+            server.send_message(msg)
+    except Exception as e:
+        print(f"Admin xabarini yuborishda xato: {e}")
+
+
 def joriy_foydalanuvchi():
     return session.get("foydalanuvchi")
 
@@ -749,11 +782,6 @@ HTML = """
       <p style="text-align:center">{{ email }} manziliga yuborilgan 6 xonali kodni kiriting</p>
       <input type="text" name="kod" placeholder="123456" maxlength="6" required style="text-align:center; font-size:20px; letter-spacing:5px">
       <button type="submit">Tasdiqlash</button>
-      {% if joriy_kod %}
-      <div style="background:#fff3cd; padding:10px; border-radius:6px; margin-top:15px; text-align:center; font-size:14px">
-        <b>Test rejim:</b> Sizning kodingiz: <span style="font-size:18px; letter-spacing:3px; color:#1a3a6e">{{ joriy_kod }}</span>
-      </div>
-      {% endif %}
     </form>
   {% endif %}
 </div>
@@ -898,11 +926,12 @@ def royxat():
         }
         foydalanuvchilar_saqlash(f)
         yuborildi = email_yuborish(email, kod)
+        admin_ga_royxat_xabari(ism, familiya, email, kod, yuborildi)
         session["tasdiqlash_email"] = email
         if eski_bor:
             flash("Eski akkaunt o'chirildi. Yangi tasdiqlash kodi yuborildi.", "muvaffaqiyat")
         elif not yuborildi:
-            flash("Email yuborilmadi — kod konsolda ko'rinadi.", "xato")
+            flash("Email yuborilmadi. Administrator bilan bog'laning.", "xato")
         return redirect(url_for("tasdiqlash"))
     return render_template_string(HTML, sahifa="royxat", foydalanuvchi=joriy_foydalanuvchi())
 
@@ -913,7 +942,6 @@ def tasdiqlash():
     if not email:
         return redirect(url_for("royxat"))
     f = foydalanuvchilar_yuklash()
-    joriy_kod = f["tasdiqlanmaganlar"].get(email, {}).get("kod", "")
     if request.method == "POST":
         if email in f["tasdiqlanmaganlar"]:
             kiritilgan = request.form.get("kod", "").strip()
@@ -928,7 +956,7 @@ def tasdiqlash():
             else:
                 flash("Kod noto'g'ri", "xato")
     return render_template_string(HTML, sahifa="tasdiqlash", email=email,
-                                   joriy_kod=joriy_kod, foydalanuvchi=joriy_foydalanuvchi())
+                                   foydalanuvchi=joriy_foydalanuvchi())
 
 
 @app.route("/kirish", methods=["GET", "POST"])
